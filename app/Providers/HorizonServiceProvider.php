@@ -19,7 +19,17 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
         // Horizon::routeMailNotificationsTo('example@example.com');
         // Horizon::routeSlackNotificationsTo('slack-webhook-url', '#channel');
     }
-
+    /**
+     * Configure the Horizon authorization services.
+     *
+     * @return void
+     */
+    protected function authorization()
+    {
+        Horizon::auth(function () {
+            return true;
+        });
+    }
     /**
      * Register the Horizon gate.
      *
