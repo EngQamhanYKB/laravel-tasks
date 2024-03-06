@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::group(['prefix' => 'v1',], function () {
-    Route::post('sync', function (Request $request) {
-        return response()->json($request->all());
-    });
+    Route::put('sync', 'SyncController@update');
+    Route::resource('sync', 'SyncController');
+
 });

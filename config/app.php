@@ -170,6 +170,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Laravel\Telescope\TelescopeServiceProvider::class,
         App\Providers\TelescopeServiceProvider::class,
+        App\Providers\HorizonServiceProvider::class
     ])->toArray(),
 
     /*

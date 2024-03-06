@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('app_settings', function (Blueprint $table) {
             $table->integer('settings_pk')->primary();
             $table->text('settings_j_s_o_n');
-            $table->integer('date_updated');
+            $table->bigInteger('date_updated');
         });
     }
 

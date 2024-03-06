@@ -14,19 +14,21 @@ return new class extends Migration
     public function up()
     {
         Schema::create('wallets', function (Blueprint $table) {
-            $table->string('wallet_pk',45)->primary();
+            $table->string('wallet_pk',45)->index('wallets_wallet_pk');
             $table->text('name');
             $table->text('colour')->nullable();
             $table->text('icon_name')->nullable();
-            $table->integer('date_created');
-            $table->integer('date_time_modified')->nullable()->default(1704814739);
+            $table->bigInteger('date_created');
+            $table->bigInteger('date_time_modified')->nullable()->default(1704814739);
             $table->integer('order');
             $table->text('currency')->nullable();
             $table->text('currency_format')->nullable();
             $table->integer('decimals')->default(2);
             $table->text('home_page_widget_display')->nullable();
             $table->integer('synced')->nullable()->default(0);
-            $table->string('party_id', 45)->nullable()->index('budgets_party_id');
+            $table->string('customer_id', 45)->index('wallets_customer_id');
+            $table->bigInteger('customer_type_id')->index('wallets_customer_type_id');
+            $table->primary(["wallet_pk","customer_id", "customer_type_id"]);
         });
     }
 

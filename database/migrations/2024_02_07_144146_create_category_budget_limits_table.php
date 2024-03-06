@@ -14,14 +14,16 @@ return new class extends Migration
     public function up()
     {
         Schema::create('category_budget_limits', function (Blueprint $table) {
-            $table->string('category_limit_pk',45)->primary();
+            $table->string('category_limit_pk',45)->index('category_budget_limits_category_limit_pk');
             $table->text('category_fk');
             $table->text('budget_fk');
             $table->double('amount');
-            $table->integer('date_time_modified')->nullable()->default(1704814739);
+            $table->bigInteger('date_time_modified')->nullable()->default(1704814739);
             $table->text('wallet_fk');
             $table->integer('synced')->nullable()->default(0);
-            $table->string('party_id', 45)->nullable()->index('budgets_party_id');
+            $table->string('customer_id', 45)->index('category_budget_limits_customer_id');
+            $table->bigInteger('customer_type_id')->index('category_budget_limits_customer_type_id');
+            $table->primary(["category_limit_pk","customer_id", "customer_type_id"]);
         });
     }
 

@@ -14,12 +14,14 @@ return new class extends Migration
     public function up()
     {
         Schema::create('delete_logs', function (Blueprint $table) {
-            $table->string('delete_log_pk',45)->primary();
+            $table->string('delete_log_pk',45)->index('delete_logs_delete_log_pk');
             $table->text('entry_pk');
             $table->integer('type');
-            $table->integer('date_time_modified')->default(1704814739);
+            $table->bigInteger('date_time_modified')->default(1704814739);
             $table->integer('synced')->nullable()->default(0);
-            $table->string('party_id', 45)->nullable()->index('budgets_party_id');
+            $table->string('customer_id', 45)->index('delete_logs_customer_id');
+            $table->bigInteger('customer_type_id')->index('delete_logs_customer_type_id');
+            $table->primary(["delete_log_pk","customer_id", "customer_type_id"]);
         });
     }
 
