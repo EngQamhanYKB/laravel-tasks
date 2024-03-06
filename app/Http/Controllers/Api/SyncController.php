@@ -22,6 +22,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use Spatie\LaravelData\DataCollection;
+use Throwable;
 
 class SyncController extends BaseController
 {
@@ -152,81 +153,87 @@ class SyncController extends BaseController
      */
     public function update(Request $request)
     {
+
+
         $customerId='0183415';
         $customerType=1;
 
         $syncData=SyncData::from($request->all());
 
-
-
-        foreach ($syncData->wallets as $_wallet) {
-            $wallet=Wallet::firstOrNew([
-                'wallet_pk'         => $_wallet->walletPk,
-                'customer_id'       => $customerId,
-                'customer_type_id'  => $customerType
-            ]);
-            if(!$wallet->exist || ($wallet->exist && $wallet->date_time_modified<$_wallet->dateTimeModified)){
-                $wallet->customer_id=$customerId;
-                $wallet->customer_type_id=$customerType;
-                foreach ($_wallet->toArray() as $key => $value) {
-                    $wallet->{"$key"}=$value;
+        dispatch(function () use ($syncData,$customerId,$customerType) {
+            foreach ($syncData->wallets as $_wallet) {
+                $wallet=Wallet::firstOrNew([
+                    'wallet_pk'         => $_wallet->walletPk,
+                    'customer_id'       => $customerId,
+                    'customer_type_id'  => $customerType
+                ]);
+                if(!$wallet->exist || ($wallet->exist && $wallet->date_time_modified<$_wallet->dateTimeModified)){
+                    $wallet->customer_id=$customerId;
+                    $wallet->customer_type_id=$customerType;
+                    foreach ($_wallet->toArray() as $key => $value) {
+                        $wallet->{"$key"}=$value;
+                    }
+                    $wallet->save();
                 }
-                $wallet->save();
+
             }
 
-        }
-
-        foreach ($syncData->budgets as $_budget) {
-            $budget=Budget::firstOrNew([
-                'budget_pk'     => $_budget->budgetPk,
-                'customer_id'    => $customerId,
-                'customer_type_id'    => $customerType
-            ]);
-            if(!$budget->exist || ($budget->exist && $budget->date_time_modified<$_budget->dateTimeModified)){
-                $budget->customer_id=$customerId;
-                $budget->customer_type_id=$customerType;
-                foreach ($_budget->toArray() as $key => $value) {
-                    $budget->{"$key"}=$value;
+            foreach ($syncData->budgets as $_budget) {
+                $budget=Budget::firstOrNew([
+                    'budget_pk'     => $_budget->budgetPk,
+                    'customer_id'    => $customerId,
+                    'customer_type_id'    => $customerType
+                ]);
+                if(!$budget->exist || ($budget->exist && $budget->date_time_modified<$_budget->dateTimeModified)){
+                    $budget->customer_id=$customerId;
+                    $budget->customer_type_id=$customerType;
+                    foreach ($_budget->toArray() as $key => $value) {
+                        $budget->{"$key"}=$value;
+                    }
+                    $budget->save();
                 }
-                $budget->save();
+
+
             }
 
+            foreach ($syncData->categories as $_category) {
+                $category=Category::firstOrNew([
+                    'category_pk'     => $_category->categoryPk,
+                    'customer_id'    => $customerId,
+                    'customer_type_id'    => $customerType
+                ]);
+                if(!$category->exist || ($category->exist && $category->date_time_modified<$_category->dateTimeModified)){
+                    $category->customer_id=$customerId;
+                    $category->customer_type_id=$customerType;
 
-        }
-
-        foreach ($syncData->categories as $_category) {
-            $category=Category::firstOrNew([
-                'category_pk'     => $_category->categoryPk,
-                'customer_id'    => $customerId,
-                'customer_type_id'    => $customerType
-            ]);
-            if(!$category->exist || ($category->exist && $category->date_time_modified<$_category->dateTimeModified)){
-                $category->customer_id=$customerId;
-                $category->customer_type_id=$customerType;
-
-                foreach ($_category->toArray() as $key => $value) {
-                    $category->{"$key"}=$value;
+                    foreach ($_category->toArray() as $key => $value) {
+                        $category->{"$key"}=$value;
+                    }
+                    $category->save();
                 }
-                $category->save();
+
             }
 
-        }
-
-        foreach ($syncData->transactions as $_transaction) {
-            $transaction=Transaction::firstOrNew([
-                'transaction_pk'     => $_transaction->transactionPk,
-                'customer_id'    => $customerId,
-                'customer_type_id'    => $customerType
-            ]);
-            if(!$transaction->exist || ($transaction->exist && $transaction->date_time_modified<$_transaction->dateTimeModified)){
-                $transaction->customer_id=$customerId;
-                $transaction->customer_type_id=$customerType;
-                foreach ($_transaction->toArray() as $key => $value) {
-                    $transaction->{"$key"}=$value;
+            foreach ($syncData->transactions as $_transaction) {
+                $transaction=Transaction::firstOrNew([
+                    'transaction_pk'     => $_transaction->transactionPk,
+                    'customer_id'    => $customerId,
+                    'customer_type_id'    => $customerType
+                ]);
+                if(!$transaction->exist || ($transaction->exist && $transaction->date_time_modified<$_transaction->dateTimeModified)){
+                    $transaction->customer_id=$customerId;
+                    $transaction->customer_type_id=$customerType;
+                    foreach ($_transaction->toArray() as $key => $value) {
+                        $transaction->{"$key"}=$value;
+                    }
+                    $transaction->save();
                 }
-                $transaction->save();
             }
-        }
+        })->catch(function (Throwable $e) {
+            \Log::error("[Notifications]: dispatch send unicast");
+        });
+
+
 
         return response()->json(GeneralResponseData::from(array(
             'status'=>[
